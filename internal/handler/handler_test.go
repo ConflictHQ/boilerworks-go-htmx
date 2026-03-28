@@ -674,3 +674,164 @@ func TestCategoryCreateValidationRejectsEmptyName(t *testing.T) {
 		t.Fatal("category should not have been created with empty name")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Category HTMX tests
+// ---------------------------------------------------------------------------
+
+func TestHTMXCategoryListReturnsFragment(t *testing.T) {
+	_, cs := seedCategory()
+	router := buildCategoryRouter(cs)
+
+	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
+	req.Header.Set("HX-Request", "true")
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	body := w.Body.String()
+	if strings.Contains(body, "<!DOCTYPE") || strings.Contains(body, "<html") {
+		t.Error("HTMX category list should return a fragment, not full page")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Permission denial tests (viewer cannot create/update categories)
+// ---------------------------------------------------------------------------
+
+func TestViewerCannotCreateCategory(t *testing.T) {
+	cs := &mockCategoryStore{}
+	router := buildCategoryRouter(cs)
+
+	form := url.Values{}
+	form.Set("name", "Forbidden Category")
+	form.Set("description", "No access")
+
+	req := httptest.NewRequest(http.MethodPost, "/categories", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req = req.WithContext(viewerContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected 403 for viewer creating category, got %d", w.Code)
+	}
+	if cs.created != nil {
+		t.Fatal("category should not have been created by viewer")
+	}
+}
+
+func TestViewerCannotUpdateCategory(t *testing.T) {
+	uid, cs := seedCategory()
+	router := buildCategoryRouter(cs)
+
+	form := url.Values{}
+	form.Set("name", "Hacked Category")
+	form.Set("description", "No access")
+
+	req := httptest.NewRequest(http.MethodPost, "/categories/"+uid.String(), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req = req.WithContext(viewerContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected 403 for viewer updating category, got %d", w.Code)
+	}
+	if cs.updated != nil {
+		t.Fatal("category should not have been updated by viewer")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Invalid UUID tests
+// ---------------------------------------------------------------------------
+
+func TestProductEditInvalidUUID(t *testing.T) {
+	ps := &mockProductStore{}
+	cs := &mockCategoryStore{}
+	router := buildProductRouter(ps, cs)
+
+	req := httptest.NewRequest(http.MethodGet, "/products/not-a-uuid/edit", nil)
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid UUID, got %d", w.Code)
+	}
+}
+
+func TestCategoryEditInvalidUUID(t *testing.T) {
+	cs := &mockCategoryStore{}
+	router := buildCategoryRouter(cs)
+
+	req := httptest.NewRequest(http.MethodGet, "/categories/not-a-uuid/edit", nil)
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid UUID, got %d", w.Code)
+	}
+}
+
+func TestProductDeleteNonExistent(t *testing.T) {
+	ps := &mockProductStore{}
+	cs := &mockCategoryStore{}
+	router := buildProductRouter(ps, cs)
+
+	fakeUUID := uuid.New()
+	req := httptest.NewRequest(http.MethodDelete, "/products/"+fakeUUID.String(), nil)
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500 for deleting non-existent product, got %d", w.Code)
+	}
+}
+
+func TestCategoryDeleteNonExistent(t *testing.T) {
+	cs := &mockCategoryStore{}
+	router := buildCategoryRouter(cs)
+
+	fakeUUID := uuid.New()
+	req := httptest.NewRequest(http.MethodDelete, "/categories/"+fakeUUID.String(), nil)
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500 for deleting non-existent category, got %d", w.Code)
+	}
+}
+
+func TestProductCreateValidationRejectsInvalidPrice(t *testing.T) {
+	ps := &mockProductStore{}
+	cs := &mockCategoryStore{}
+	router := buildProductRouter(ps, cs)
+
+	form := url.Values{}
+	form.Set("name", "Widget")
+	form.Set("price", "not-a-number")
+	form.Set("status", "active")
+
+	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req = req.WithContext(adminContext(req.Context()))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Validation failure re-renders form (200)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for invalid price, got %d", w.Code)
+	}
+	if ps.created != nil {
+		t.Fatal("product should not have been created with invalid price")
+	}
+}
