@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ConflictHQ/boilerworks-go-htmx/internal/database/queries"
 	"github.com/ConflictHQ/boilerworks-go-htmx/internal/middleware"
 	"github.com/ConflictHQ/boilerworks-go-htmx/internal/model"
 	"github.com/ConflictHQ/boilerworks-go-htmx/templates"
@@ -14,10 +13,10 @@ import (
 )
 
 type CategoriesHandler struct {
-	categories *queries.CategoryQueries
+	categories CategoryStore
 }
 
-func NewCategoriesHandler(c *queries.CategoryQueries) *CategoriesHandler {
+func NewCategoriesHandler(c CategoryStore) *CategoriesHandler {
 	return &CategoriesHandler{categories: c}
 }
 

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ConflictHQ/boilerworks-go-htmx/internal/database/queries"
 	"github.com/ConflictHQ/boilerworks-go-htmx/internal/middleware"
 	"github.com/ConflictHQ/boilerworks-go-htmx/internal/model"
 	"github.com/ConflictHQ/boilerworks-go-htmx/templates"
@@ -14,11 +13,11 @@ import (
 )
 
 type ProductsHandler struct {
-	products   *queries.ProductQueries
-	categories *queries.CategoryQueries
+	products   ProductStore
+	categories CategoryStore
 }
 
-func NewProductsHandler(p *queries.ProductQueries, c *queries.CategoryQueries) *ProductsHandler {
+func NewProductsHandler(p ProductStore, c CategoryStore) *ProductsHandler {
 	return &ProductsHandler{products: p, categories: c}
 }
 
