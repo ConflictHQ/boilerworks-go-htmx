@@ -1,0 +1,31 @@
+package components
+
+import (
+	"fmt"
+	"github.com/ConflictHQ/boilerworks-go-htmx/internal/model"
+)
+
+templ Pagination(p model.Pagination, baseURL string) {
+	if p.TotalPages > 1 {
+		<div class="flex items-center justify-between mt-6">
+			<p class="text-sm text-gray-400">
+				Showing page { fmt.Sprintf("%d", p.Page) } of { fmt.Sprintf("%d", p.TotalPages) }
+				({ fmt.Sprintf("%d", p.Total) } total)
+			</p>
+			<div class="flex gap-2">
+				if p.Page > 1 {
+					<a href={ templ.SafeURL(fmt.Sprintf("%s?page=%d", baseURL, p.Page-1)) }
+					   class="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+						Previous
+					</a>
+				}
+				if p.Page < p.TotalPages {
+					<a href={ templ.SafeURL(fmt.Sprintf("%s?page=%d", baseURL, p.Page+1)) }
+					   class="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+						Next
+					</a>
+				}
+			</div>
+		</div>
+	}
+}

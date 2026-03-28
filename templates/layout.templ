@@ -1,0 +1,184 @@
+package templates
+
+import (
+	"github.com/ConflictHQ/boilerworks-go-htmx/internal/model"
+)
+
+type LayoutData struct {
+	Title       string
+	User        *model.User
+	Permissions []string
+	CSRFToken   string
+	Flash       string
+	FlashType   string
+}
+
+func hasPerm(perms []string, perm string) bool {
+	for _, p := range perms {
+		if p == perm {
+			return true
+		}
+	}
+	return false
+}
+
+templ Layout(data LayoutData) {
+	<!DOCTYPE html>
+	<html lang="en" class="dark">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ data.Title } - Boilerworks</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+		<script>
+			tailwind.config = {
+				darkMode: 'class',
+				theme: {
+					extend: {
+						colors: {
+							brand: {
+								50: '#eef2ff',
+								100: '#e0e7ff',
+								200: '#c7d2fe',
+								300: '#a5b4fc',
+								400: '#818cf8',
+								500: '#6366f1',
+								600: '#4f46e5',
+								700: '#4338ca',
+								800: '#3730a3',
+								900: '#312e81',
+								950: '#1e1b4b',
+							}
+						}
+					}
+				}
+			}
+		</script>
+		<style>
+			body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+			.htmx-indicator { display: none; }
+			.htmx-request .htmx-indicator { display: inline-block; }
+			.htmx-request.htmx-indicator { display: inline-block; }
+		</style>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				// Set CSRF token header for all HTMX requests
+				document.body.addEventListener('htmx:configRequest', function(event) {
+					var csrfCookie = document.cookie.split('; ').find(row => row.startsWith('csrf_token='));
+					if (csrfCookie) {
+						event.detail.headers['X-CSRF-Token'] = csrfCookie.split('=')[1];
+					}
+				});
+			});
+		</script>
+	</head>
+	<body class="bg-gray-950 text-gray-100 min-h-screen" hx-boost="true">
+		if data.User != nil {
+			<div class="flex min-h-screen">
+				@sidebar(data)
+				<main class="flex-1 ml-64">
+					<div class="p-8">
+						if data.Flash != "" {
+							@FlashMessage(data.Flash, data.FlashType)
+						}
+						{ children... }
+					</div>
+				</main>
+			</div>
+		} else {
+			<main class="min-h-screen flex items-center justify-center">
+				if data.Flash != "" {
+					<div class="fixed top-4 right-4 z-50">
+						@FlashMessage(data.Flash, data.FlashType)
+					</div>
+				}
+				{ children... }
+			</main>
+		}
+	</body>
+	</html>
+}
+
+templ sidebar(data LayoutData) {
+	<aside class="fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+		<div class="p-6 border-b border-gray-800">
+			<h1 class="text-xl font-bold text-white">
+				<span class="text-indigo-400">Boiler</span><span class="text-white">works</span>
+			</h1>
+			<p class="text-xs text-gray-500 mt-1">Go + HTMX</p>
+		</div>
+
+		<nav class="flex-1 p-4 space-y-1">
+			@navLink("/dashboard", "Dashboard", dashboardIcon())
+			if hasPerm(data.Permissions, "products.view") {
+				@navLink("/products", "Products", productsIcon())
+			}
+			if hasPerm(data.Permissions, "categories.view") {
+				@navLink("/categories", "Categories", categoriesIcon())
+			}
+			if hasPerm(data.Permissions, "forms.view") {
+				@navLink("/forms", "Forms", formsIcon())
+			}
+			if hasPerm(data.Permissions, "workflows.view") {
+				@navLink("/workflows", "Workflows", workflowsIcon())
+			}
+		</nav>
+
+		<div class="p-4 border-t border-gray-800">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-medium">
+					{ string([]rune(data.User.Name)[0:1]) }
+				</div>
+				<div class="flex-1 min-w-0">
+					<p class="text-sm font-medium text-gray-200 truncate">{ data.User.Name }</p>
+					<p class="text-xs text-gray-500 truncate">{ data.User.Email }</p>
+				</div>
+			</div>
+			<form method="POST" action="/logout">
+				<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
+				<button type="submit" class="w-full text-left text-sm text-gray-400 hover:text-white transition-colors">
+					Sign out
+				</button>
+			</form>
+		</div>
+	</aside>
+}
+
+templ navLink(href, label string, icon templ.Component) {
+	<a href={ templ.SafeURL(href) }
+	   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+		@icon
+		{ label }
+	</a>
+}
+
+templ dashboardIcon() {
+	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+	</svg>
+}
+
+templ productsIcon() {
+	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+	</svg>
+}
+
+templ categoriesIcon() {
+	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+	</svg>
+}
+
+templ formsIcon() {
+	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+	</svg>
+}
+
+templ workflowsIcon() {
+	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+	</svg>
+}
