@@ -86,3 +86,7 @@ docker/                      -- Docker Compose stack
 ## Want to help build this?
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+Boilerworks is a [Conflict](https://weareconflict.com) brand. CONFLICT is a registered trademark of Conflict LLC.
