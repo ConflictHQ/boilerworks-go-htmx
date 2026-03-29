@@ -20,15 +20,15 @@ import (
 // Mock stores
 // ---------------------------------------------------------------------------
 
-type mockProductStore struct {
-	products []model.Product
-	created  *model.Product
-	updated  *model.Product
+type mockItemStore struct {
+	items []model.Item
+	created  *model.Item
+	updated  *model.Item
 	deleted  bool
 }
 
-func (m *mockProductStore) List(_ context.Context, limit, offset int) ([]model.Product, int, error) {
-	total := len(m.products)
+func (m *mockItemStore) List(_ context.Context, limit, offset int) ([]model.Item, int, error) {
+	total := len(m.items)
 	end := offset + limit
 	if end > total {
 		end = total
@@ -36,20 +36,20 @@ func (m *mockProductStore) List(_ context.Context, limit, offset int) ([]model.P
 	if offset > total {
 		return nil, total, nil
 	}
-	return m.products[offset:end], total, nil
+	return m.items[offset:end], total, nil
 }
 
-func (m *mockProductStore) GetByUUID(_ context.Context, uid uuid.UUID) (*model.Product, error) {
-	for i := range m.products {
-		if m.products[i].UUID == uid {
-			return &m.products[i], nil
+func (m *mockItemStore) GetByUUID(_ context.Context, uid uuid.UUID) (*model.Item, error) {
+	for i := range m.items {
+		if m.items[i].UUID == uid {
+			return &m.items[i], nil
 		}
 	}
 	return nil, fmt.Errorf("not found")
 }
 
-func (m *mockProductStore) Create(_ context.Context, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Product, error) {
-	p := model.Product{
+func (m *mockItemStore) Create(_ context.Context, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Item, error) {
+	p := model.Item{
 		ID:          uuid.New(),
 		UUID:        uuid.New(),
 		Name:        name,
@@ -62,32 +62,32 @@ func (m *mockProductStore) Create(_ context.Context, name, description string, p
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-	m.products = append(m.products, p)
+	m.items = append(m.items, p)
 	m.created = &p
 	return &p, nil
 }
 
-func (m *mockProductStore) Update(_ context.Context, uid uuid.UUID, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Product, error) {
-	for i := range m.products {
-		if m.products[i].UUID == uid {
-			m.products[i].Name = name
-			m.products[i].Description = description
-			m.products[i].Price = price
-			m.products[i].Status = status
-			m.products[i].CategoryID = categoryID
-			m.products[i].UpdatedBy = userID
-			m.updated = &m.products[i]
-			return &m.products[i], nil
+func (m *mockItemStore) Update(_ context.Context, uid uuid.UUID, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Item, error) {
+	for i := range m.items {
+		if m.items[i].UUID == uid {
+			m.items[i].Name = name
+			m.items[i].Description = description
+			m.items[i].Price = price
+			m.items[i].Status = status
+			m.items[i].CategoryID = categoryID
+			m.items[i].UpdatedBy = userID
+			m.updated = &m.items[i]
+			return &m.items[i], nil
 		}
 	}
 	return nil, fmt.Errorf("not found")
 }
 
-func (m *mockProductStore) Delete(_ context.Context, uid uuid.UUID) error {
-	for i := range m.products {
-		if m.products[i].UUID == uid {
+func (m *mockItemStore) Delete(_ context.Context, uid uuid.UUID) error {
+	for i := range m.items {
+		if m.items[i].UUID == uid {
 			m.deleted = true
-			m.products = append(m.products[:i], m.products[i+1:]...)
+			m.items = append(m.items[:i], m.items[i+1:]...)
 			return nil
 		}
 	}
@@ -182,20 +182,20 @@ func authedContext(ctx context.Context, perms []string) context.Context {
 }
 
 func viewerContext(ctx context.Context) context.Context {
-	return authedContext(ctx, []string{"products.view", "categories.view"})
+	return authedContext(ctx, []string{"items.view", "categories.view"})
 }
 
 func adminContext(ctx context.Context) context.Context {
 	return authedContext(ctx, []string{
-		"products.view", "products.create", "products.edit", "products.delete",
+		"items.view", "items.create", "items.edit", "items.delete",
 		"categories.view", "categories.create", "categories.edit", "categories.delete",
 	})
 }
 
-func seedProduct() (uuid.UUID, *mockProductStore) {
+func seedItem() (uuid.UUID, *mockItemStore) {
 	uid := uuid.New()
-	store := &mockProductStore{
-		products: []model.Product{
+	store := &mockItemStore{
+		items: []model.Item{
 			{
 				ID:          uuid.New(),
 				UUID:        uid,
@@ -232,15 +232,15 @@ func seedCategory() (uuid.UUID, *mockCategoryStore) {
 	return uid, store
 }
 
-func buildProductRouter(ps ProductStore, cs CategoryStore) *chi.Mux {
-	h := NewProductsHandler(ps, cs)
+func buildItemRouter(ps ItemStore, cs CategoryStore) *chi.Mux {
+	h := NewItemsHandler(ps, cs)
 	r := chi.NewRouter()
-	r.Route("/products", func(r chi.Router) {
-		r.With(middleware.RequirePermission("products.view")).Get("/", h.List)
-		r.With(middleware.RequirePermission("products.create")).Post("/", h.Create)
-		r.With(middleware.RequirePermission("products.edit")).Get("/{uuid}/edit", h.Edit)
-		r.With(middleware.RequirePermission("products.edit")).Post("/{uuid}", h.Update)
-		r.With(middleware.RequirePermission("products.delete")).Delete("/{uuid}", h.Delete)
+	r.Route("/items", func(r chi.Router) {
+		r.With(middleware.RequirePermission("items.view")).Get("/", h.List)
+		r.With(middleware.RequirePermission("items.create")).Post("/", h.Create)
+		r.With(middleware.RequirePermission("items.edit")).Get("/{uuid}/edit", h.Edit)
+		r.With(middleware.RequirePermission("items.edit")).Post("/{uuid}", h.Update)
+		r.With(middleware.RequirePermission("items.delete")).Delete("/{uuid}", h.Delete)
 	})
 	return r
 }
@@ -259,15 +259,15 @@ func buildCategoryRouter(cs CategoryStore) *chi.Mux {
 }
 
 // ---------------------------------------------------------------------------
-// Product handler tests
+// Item handler tests
 // ---------------------------------------------------------------------------
 
-func TestProductList(t *testing.T) {
-	_, ps := seedProduct()
+func TestItemList(t *testing.T) {
+	_, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodGet, "/products", nil)
+	req := httptest.NewRequest(http.MethodGet, "/items", nil)
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -280,10 +280,10 @@ func TestProductList(t *testing.T) {
 	}
 }
 
-func TestProductCreate(t *testing.T) {
-	ps := &mockProductStore{}
+func TestItemCreate(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "New Widget")
@@ -291,7 +291,7 @@ func TestProductCreate(t *testing.T) {
 	form.Set("price", "19.99")
 	form.Set("status", "active")
 
-	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -300,23 +300,23 @@ func TestProductCreate(t *testing.T) {
 	if w.Code != http.StatusSeeOther {
 		t.Fatalf("expected 303 redirect, got %d: %s", w.Code, w.Body.String())
 	}
-	if loc := w.Header().Get("Location"); loc != "/products" {
-		t.Errorf("expected redirect to /products, got %s", loc)
+	if loc := w.Header().Get("Location"); loc != "/items" {
+		t.Errorf("expected redirect to /items, got %s", loc)
 	}
 	if ps.created == nil {
-		t.Fatal("expected product to be created")
+		t.Fatal("expected item to be created")
 	}
 	if ps.created.Name != "New Widget" {
 		t.Errorf("expected name 'New Widget', got '%s'", ps.created.Name)
 	}
 }
 
-func TestProductGet(t *testing.T) {
-	uid, ps := seedProduct()
+func TestItemGet(t *testing.T) {
+	uid, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodGet, "/products/"+uid.String()+"/edit", nil)
+	req := httptest.NewRequest(http.MethodGet, "/items/"+uid.String()+"/edit", nil)
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -326,10 +326,10 @@ func TestProductGet(t *testing.T) {
 	}
 }
 
-func TestProductUpdate(t *testing.T) {
-	uid, ps := seedProduct()
+func TestItemUpdate(t *testing.T) {
+	uid, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "Updated Widget")
@@ -337,7 +337,7 @@ func TestProductUpdate(t *testing.T) {
 	form.Set("price", "29.99")
 	form.Set("status", "inactive")
 
-	req := httptest.NewRequest(http.MethodPost, "/products/"+uid.String(), strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items/"+uid.String(), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -347,19 +347,19 @@ func TestProductUpdate(t *testing.T) {
 		t.Fatalf("expected 303, got %d: %s", w.Code, w.Body.String())
 	}
 	if ps.updated == nil {
-		t.Fatal("expected product to be updated")
+		t.Fatal("expected item to be updated")
 	}
 	if ps.updated.Name != "Updated Widget" {
 		t.Errorf("expected name 'Updated Widget', got '%s'", ps.updated.Name)
 	}
 }
 
-func TestProductDelete(t *testing.T) {
-	uid, ps := seedProduct()
+func TestItemDelete(t *testing.T) {
+	uid, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodDelete, "/products/"+uid.String(), nil)
+	req := httptest.NewRequest(http.MethodDelete, "/items/"+uid.String(), nil)
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -369,7 +369,7 @@ func TestProductDelete(t *testing.T) {
 		t.Fatalf("expected 303, got %d: %s", w.Code, w.Body.String())
 	}
 	if !ps.deleted {
-		t.Fatal("expected product to be deleted from store")
+		t.Fatal("expected item to be deleted from store")
 	}
 }
 
@@ -476,45 +476,45 @@ func TestCategoryDelete(t *testing.T) {
 // Permission denial tests (viewer cannot create/update/delete)
 // ---------------------------------------------------------------------------
 
-func TestViewerCannotCreateProduct(t *testing.T) {
-	ps := &mockProductStore{}
+func TestViewerCannotCreateItem(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "Forbidden Widget")
 	form.Set("price", "5.00")
 	form.Set("status", "active")
 
-	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(viewerContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusForbidden {
-		t.Fatalf("expected 403 for viewer creating product, got %d", w.Code)
+		t.Fatalf("expected 403 for viewer creating item, got %d", w.Code)
 	}
 }
 
-func TestViewerCannotUpdateProduct(t *testing.T) {
-	uid, ps := seedProduct()
+func TestViewerCannotUpdateItem(t *testing.T) {
+	uid, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "Hacked Widget")
 	form.Set("price", "0.01")
 	form.Set("status", "active")
 
-	req := httptest.NewRequest(http.MethodPost, "/products/"+uid.String(), strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items/"+uid.String(), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(viewerContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusForbidden {
-		t.Fatalf("expected 403 for viewer updating product, got %d", w.Code)
+		t.Fatalf("expected 403 for viewer updating item, got %d", w.Code)
 	}
 }
 
@@ -540,11 +540,11 @@ func TestViewerCannotDeleteCategory(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestHTMXRequestReturnsFragment(t *testing.T) {
-	_, ps := seedProduct()
+	_, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodGet, "/products", nil)
+	req := httptest.NewRequest(http.MethodGet, "/items", nil)
 	req.Header.Set("HX-Request", "true")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -562,11 +562,11 @@ func TestHTMXRequestReturnsFragment(t *testing.T) {
 }
 
 func TestNonHTMXRequestReturnsFullPage(t *testing.T) {
-	_, ps := seedProduct()
+	_, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodGet, "/products", nil)
+	req := httptest.NewRequest(http.MethodGet, "/items", nil)
 	// No HX-Request header -- normal browser request
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -588,11 +588,11 @@ func TestNonHTMXRequestReturnsFullPage(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestHTMXDeleteReturnsOK(t *testing.T) {
-	uid, ps := seedProduct()
+	uid, ps := seedItem()
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodDelete, "/products/"+uid.String(), nil)
+	req := httptest.NewRequest(http.MethodDelete, "/items/"+uid.String(), nil)
 	req.Header.Set("HX-Request", "true")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -602,7 +602,7 @@ func TestHTMXDeleteReturnsOK(t *testing.T) {
 		t.Fatalf("expected 200 for HTMX delete, got %d", w.Code)
 	}
 	if !ps.deleted {
-		t.Fatal("expected product to be deleted")
+		t.Fatal("expected item to be deleted")
 	}
 }
 
@@ -628,17 +628,17 @@ func TestHTMXCategoryDeleteReturnsOK(t *testing.T) {
 // Validation tests
 // ---------------------------------------------------------------------------
 
-func TestProductCreateValidationRejectsEmptyName(t *testing.T) {
-	ps := &mockProductStore{}
+func TestItemCreateValidationRejectsEmptyName(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "")
 	form.Set("price", "10.00")
 	form.Set("status", "active")
 
-	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -649,7 +649,7 @@ func TestProductCreateValidationRejectsEmptyName(t *testing.T) {
 		t.Fatalf("expected 200 for validation error, got %d", w.Code)
 	}
 	if ps.created != nil {
-		t.Fatal("product should not have been created with empty name")
+		t.Fatal("item should not have been created with empty name")
 	}
 }
 
@@ -751,12 +751,12 @@ func TestViewerCannotUpdateCategory(t *testing.T) {
 // Invalid UUID tests
 // ---------------------------------------------------------------------------
 
-func TestProductEditInvalidUUID(t *testing.T) {
-	ps := &mockProductStore{}
+func TestItemEditInvalidUUID(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
-	req := httptest.NewRequest(http.MethodGet, "/products/not-a-uuid/edit", nil)
+	req := httptest.NewRequest(http.MethodGet, "/items/not-a-uuid/edit", nil)
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -780,19 +780,19 @@ func TestCategoryEditInvalidUUID(t *testing.T) {
 	}
 }
 
-func TestProductDeleteNonExistent(t *testing.T) {
-	ps := &mockProductStore{}
+func TestItemDeleteNonExistent(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	fakeUUID := uuid.New()
-	req := httptest.NewRequest(http.MethodDelete, "/products/"+fakeUUID.String(), nil)
+	req := httptest.NewRequest(http.MethodDelete, "/items/"+fakeUUID.String(), nil)
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("expected 500 for deleting non-existent product, got %d", w.Code)
+		t.Fatalf("expected 500 for deleting non-existent item, got %d", w.Code)
 	}
 }
 
@@ -811,17 +811,17 @@ func TestCategoryDeleteNonExistent(t *testing.T) {
 	}
 }
 
-func TestProductCreateValidationRejectsInvalidPrice(t *testing.T) {
-	ps := &mockProductStore{}
+func TestItemCreateValidationRejectsInvalidPrice(t *testing.T) {
+	ps := &mockItemStore{}
 	cs := &mockCategoryStore{}
-	router := buildProductRouter(ps, cs)
+	router := buildItemRouter(ps, cs)
 
 	form := url.Values{}
 	form.Set("name", "Widget")
 	form.Set("price", "not-a-number")
 	form.Set("status", "active")
 
-	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req = req.WithContext(adminContext(req.Context()))
 	w := httptest.NewRecorder()
@@ -832,6 +832,6 @@ func TestProductCreateValidationRejectsInvalidPrice(t *testing.T) {
 		t.Fatalf("expected 200 for invalid price, got %d", w.Code)
 	}
 	if ps.created != nil {
-		t.Fatal("product should not have been created with invalid price")
+		t.Fatal("item should not have been created with invalid price")
 	}
 }

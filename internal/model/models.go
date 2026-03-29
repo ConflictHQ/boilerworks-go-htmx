@@ -48,7 +48,7 @@ type Category struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
-type Product struct {
+type Item struct {
 	ID          uuid.UUID  `json:"id"`
 	UUID        uuid.UUID  `json:"uuid"`
 	Name        string     `json:"name"`

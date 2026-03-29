@@ -3,13 +3,13 @@ package pages
 import "fmt"
 
 type DashboardData struct {
-	TotalProducts   int
+	TotalItems   int
 	TotalCategories int
 	TotalForms      int
 	TotalWorkflows  int
 	TotalSubmissions int
 	TotalInstances  int
-	ProductsByStatus map[string]int
+	ItemsByStatus map[string]int
 }
 
 templ DashboardPage(data DashboardData) {
@@ -17,7 +17,7 @@ templ DashboardPage(data DashboardData) {
 		<h2 class="text-2xl font-bold text-white mb-6">Dashboard</h2>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-			@statCard("Products", fmt.Sprintf("%d", data.TotalProducts), "text-indigo-400", productsStatIcon())
+			@statCard("Items", fmt.Sprintf("%d", data.TotalItems), "text-indigo-400", itemsStatIcon())
 			@statCard("Categories", fmt.Sprintf("%d", data.TotalCategories), "text-emerald-400", categoriesStatIcon())
 			@statCard("Forms", fmt.Sprintf("%d", data.TotalForms), "text-amber-400", formsStatIcon())
 			@statCard("Submissions", fmt.Sprintf("%d", data.TotalSubmissions), "text-cyan-400", submissionsStatIcon())
@@ -25,11 +25,11 @@ templ DashboardPage(data DashboardData) {
 			@statCard("Instances", fmt.Sprintf("%d", data.TotalInstances), "text-rose-400", instancesStatIcon())
 		</div>
 
-		if len(data.ProductsByStatus) > 0 {
+		if len(data.ItemsByStatus) > 0 {
 			<div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
-				<h3 class="text-lg font-semibold text-white mb-4">Products by Status</h3>
+				<h3 class="text-lg font-semibold text-white mb-4">Items by Status</h3>
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-					for status, count := range data.ProductsByStatus {
+					for status, count := range data.ItemsByStatus {
 						<div class="bg-gray-800 rounded-lg p-4">
 							<p class="text-sm text-gray-400 capitalize">{ status }</p>
 							<p class="text-xl font-bold text-white mt-1">{ fmt.Sprintf("%d", count) }</p>
@@ -55,7 +55,7 @@ templ statCard(title, value, colorClass string, icon templ.Component) {
 	</div>
 }
 
-templ productsStatIcon() {
+templ itemsStatIcon() {
 	<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
 	</svg>

@@ -15,7 +15,7 @@ func (s *Server) registerRoutes(
 	healthH *handler.HealthHandler,
 	authH *handler.AuthHandler,
 	dashboardH *handler.DashboardHandler,
-	productsH *handler.ProductsHandler,
+	itemsH *handler.ItemsHandler,
 	categoriesH *handler.CategoriesHandler,
 	formsH *handler.FormsHandler,
 	workflowsH *handler.WorkflowsHandler,
@@ -44,14 +44,14 @@ func (s *Server) registerRoutes(
 		r.Post("/logout", authH.Logout)
 		r.Get("/dashboard", dashboardH.Dashboard)
 
-		// Products
-		r.Route("/products", func(r chi.Router) {
-			r.With(middleware.RequirePermission("products.view")).Get("/", productsH.List)
-			r.With(middleware.RequirePermission("products.create")).Get("/new", productsH.New)
-			r.With(middleware.RequirePermission("products.create")).Post("/", productsH.Create)
-			r.With(middleware.RequirePermission("products.edit")).Get("/{uuid}/edit", productsH.Edit)
-			r.With(middleware.RequirePermission("products.edit")).Post("/{uuid}", productsH.Update)
-			r.With(middleware.RequirePermission("products.delete")).Delete("/{uuid}", productsH.Delete)
+		// Items
+		r.Route("/items", func(r chi.Router) {
+			r.With(middleware.RequirePermission("items.view")).Get("/", itemsH.List)
+			r.With(middleware.RequirePermission("items.create")).Get("/new", itemsH.New)
+			r.With(middleware.RequirePermission("items.create")).Post("/", itemsH.Create)
+			r.With(middleware.RequirePermission("items.edit")).Get("/{uuid}/edit", itemsH.Edit)
+			r.With(middleware.RequirePermission("items.edit")).Post("/{uuid}", itemsH.Update)
+			r.With(middleware.RequirePermission("items.delete")).Delete("/{uuid}", itemsH.Delete)
 		})
 
 		// Categories

@@ -111,8 +111,8 @@ templ sidebar(data LayoutData) {
 
 		<nav class="flex-1 p-4 space-y-1">
 			@navLink("/dashboard", "Dashboard", dashboardIcon())
-			if hasPerm(data.Permissions, "products.view") {
-				@navLink("/products", "Products", productsIcon())
+			if hasPerm(data.Permissions, "items.view") {
+				@navLink("/items", "Items", itemsIcon())
 			}
 			if hasPerm(data.Permissions, "categories.view") {
 				@navLink("/categories", "Categories", categoriesIcon())
@@ -159,7 +159,7 @@ templ dashboardIcon() {
 	</svg>
 }
 
-templ productsIcon() {
+templ itemsIcon() {
 	<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
 	</svg>

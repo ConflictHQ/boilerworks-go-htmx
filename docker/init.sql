@@ -65,8 +65,8 @@ CREATE TABLE IF NOT EXISTS categories (
 
 CREATE INDEX IF NOT EXISTS idx_categories_deleted_at ON categories(deleted_at);
 
--- Products
-CREATE TABLE IF NOT EXISTS products (
+-- Items
+CREATE TABLE IF NOT EXISTS items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     uuid UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -81,9 +81,9 @@ CREATE TABLE IF NOT EXISTS products (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IF NOT EXISTS idx_products_deleted_at ON products(deleted_at);
-CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
-CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_items_deleted_at ON items(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
+CREATE INDEX IF NOT EXISTS idx_items_category_id ON items(category_id);
 
 -- Form definitions
 CREATE TABLE IF NOT EXISTS form_definitions (
@@ -161,7 +161,7 @@ CREATE INDEX IF NOT EXISTS idx_transition_logs_instance_id ON transition_logs(wo
 
 -- Seed data
 INSERT INTO permissions (name) VALUES
-    ('products.view'), ('products.create'), ('products.edit'), ('products.delete'),
+    ('items.view'), ('items.create'), ('items.edit'), ('items.delete'),
     ('categories.view'), ('categories.create'), ('categories.edit'), ('categories.delete'),
     ('forms.view'), ('forms.create'), ('forms.edit'), ('forms.delete'),
     ('workflows.view'), ('workflows.create'), ('workflows.edit'), ('workflows.delete'),

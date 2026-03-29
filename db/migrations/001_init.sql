@@ -65,8 +65,8 @@ CREATE TABLE categories (
 
 CREATE INDEX idx_categories_deleted_at ON categories(deleted_at);
 
--- Products
-CREATE TABLE products (
+-- Items
+CREATE TABLE items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     uuid UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -81,9 +81,9 @@ CREATE TABLE products (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_products_deleted_at ON products(deleted_at);
-CREATE INDEX idx_products_status ON products(status);
-CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_items_deleted_at ON items(deleted_at);
+CREATE INDEX idx_items_status ON items(status);
+CREATE INDEX idx_items_category_id ON items(category_id);
 
 -- Form definitions
 CREATE TABLE form_definitions (
@@ -165,7 +165,7 @@ DROP TABLE IF EXISTS workflow_instances;
 DROP TABLE IF EXISTS workflow_definitions;
 DROP TABLE IF EXISTS form_submissions;
 DROP TABLE IF EXISTS form_definitions;
-DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS user_groups;
 DROP TABLE IF EXISTS group_permissions;

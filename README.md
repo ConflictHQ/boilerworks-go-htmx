@@ -29,8 +29,8 @@ Open [http://localhost:8000](http://localhost:8000) and sign in:
 
 - **Session Authentication** -- Register, login, logout with bcrypt password hashing and httpOnly session cookies
 - **Group-based Permissions** -- Admin, editor, viewer roles with granular permission checks on every route
-- **Products CRUD** -- Full create/read/update/delete with categories, status, and pricing
-- **Categories CRUD** -- Organize products into categories
+- **Items CRUD** -- Full create/read/update/delete with categories, status, and pricing
+- **Categories CRUD** -- Organize items into categories
 - **Forms Engine** -- Define forms with JSON schema, render dynamically, collect and validate submissions
 - **Workflow Engine** -- Define state machines with states and transitions, create instances, track transition history
 - **HTMX Integration** -- Full-page loads for standard requests, HTML fragment swaps for HTMX requests
@@ -70,7 +70,7 @@ internal/
 templates/                   -- Templ files
   layout.templ               -- base layout with sidebar
   components/                -- flash, pagination
-  pages/                     -- auth, dashboard, products, categories, forms, workflows
+  pages/                     -- auth, dashboard, items, categories, forms, workflows
 db/migrations/               -- goose SQL migrations
 docker/                      -- Docker Compose stack
 ```

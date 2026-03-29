@@ -2,7 +2,7 @@
 
 -- Seed permissions
 INSERT INTO permissions (name) VALUES
-    ('products.view'), ('products.create'), ('products.edit'), ('products.delete'),
+    ('items.view'), ('items.create'), ('items.edit'), ('items.delete'),
     ('categories.view'), ('categories.create'), ('categories.edit'), ('categories.delete'),
     ('forms.view'), ('forms.create'), ('forms.edit'), ('forms.delete'),
     ('workflows.view'), ('workflows.create'), ('workflows.edit'), ('workflows.delete'),

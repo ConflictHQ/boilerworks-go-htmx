@@ -12,16 +12,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProductsHandler struct {
-	products   ProductStore
+type ItemsHandler struct {
+	items   ItemStore
 	categories CategoryStore
 }
 
-func NewProductsHandler(p ProductStore, c CategoryStore) *ProductsHandler {
-	return &ProductsHandler{products: p, categories: c}
+func NewItemsHandler(p ItemStore, c CategoryStore) *ItemsHandler {
+	return &ItemsHandler{items: p, categories: c}
 }
 
-func (h *ProductsHandler) List(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) List(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r.Context())
 	perms := middleware.GetPermissions(r.Context())
 	csrf := middleware.GetCSRFToken(r)
@@ -32,25 +32,25 @@ func (h *ProductsHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	perPage := 20
 
-	products, total, err := h.products.List(r.Context(), perPage, (page-1)*perPage)
+	items, total, err := h.items.List(r.Context(), perPage, (page-1)*perPage)
 	if err != nil {
-		http.Error(w, "Failed to load products", http.StatusInternalServerError)
+		http.Error(w, "Failed to load items", http.StatusInternalServerError)
 		return
 	}
 
 	pagination := model.NewPagination(page, perPage, total)
 
 	layout := templates.LayoutData{
-		Title:       "Products",
+		Title:       "Items",
 		User:        user,
 		Permissions: perms,
 		CSRFToken:   csrf,
 	}
 
-	renderPage(w, r, layout, pages.ProductsListPage(products, pagination, csrf, middleware.HasPermission(r.Context(), "products.create")))
+	renderPage(w, r, layout, pages.ItemsListPage(items, pagination, csrf, middleware.HasPermission(r.Context(), "items.create")))
 }
 
-func (h *ProductsHandler) New(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) New(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r.Context())
 	perms := middleware.GetPermissions(r.Context())
 	csrf := middleware.GetCSRFToken(r)
@@ -58,16 +58,16 @@ func (h *ProductsHandler) New(w http.ResponseWriter, r *http.Request) {
 	categories, _ := h.categories.ListAll(r.Context())
 
 	layout := templates.LayoutData{
-		Title:       "New Product",
+		Title:       "New Item",
 		User:        user,
 		Permissions: perms,
 		CSRFToken:   csrf,
 	}
 
-	renderPage(w, r, layout, pages.ProductFormPage(nil, categories, csrf, nil))
+	renderPage(w, r, layout, pages.ItemFormPage(nil, categories, csrf, nil))
 }
 
-func (h *ProductsHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) Create(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r.Context())
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -102,21 +102,21 @@ func (h *ProductsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		perms := middleware.GetPermissions(r.Context())
 		csrf := middleware.GetCSRFToken(r)
 		categories, _ := h.categories.ListAll(r.Context())
-		layout := templates.LayoutData{Title: "New Product", User: user, Permissions: perms, CSRFToken: csrf}
-		renderPage(w, r, layout, pages.ProductFormPage(nil, categories, csrf, errs))
+		layout := templates.LayoutData{Title: "New Item", User: user, Permissions: perms, CSRFToken: csrf}
+		renderPage(w, r, layout, pages.ItemFormPage(nil, categories, csrf, errs))
 		return
 	}
 
-	_, err = h.products.Create(r.Context(), name, description, price, status, categoryID, user.ID)
+	_, err = h.items.Create(r.Context(), name, description, price, status, categoryID, user.ID)
 	if err != nil {
-		http.Error(w, "Failed to create product", http.StatusInternalServerError)
+		http.Error(w, "Failed to create item", http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, "/products", http.StatusSeeOther)
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }
 
-func (h *ProductsHandler) Edit(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r.Context())
 	perms := middleware.GetPermissions(r.Context())
 	csrf := middleware.GetCSRFToken(r)
@@ -127,25 +127,25 @@ func (h *ProductsHandler) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := h.products.GetByUUID(r.Context(), uid)
+	item, err := h.items.GetByUUID(r.Context(), uid)
 	if err != nil {
-		http.Error(w, "Product not found", http.StatusNotFound)
+		http.Error(w, "Item not found", http.StatusNotFound)
 		return
 	}
 
 	categories, _ := h.categories.ListAll(r.Context())
 
 	layout := templates.LayoutData{
-		Title:       "Edit Product",
+		Title:       "Edit Item",
 		User:        user,
 		Permissions: perms,
 		CSRFToken:   csrf,
 	}
 
-	renderPage(w, r, layout, pages.ProductFormPage(product, categories, csrf, nil))
+	renderPage(w, r, layout, pages.ItemFormPage(item, categories, csrf, nil))
 }
 
-func (h *ProductsHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) Update(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r.Context())
 
 	uid, err := uuid.Parse(chi.URLParam(r, "uuid"))
@@ -175,24 +175,24 @@ func (h *ProductsHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err = h.products.Update(r.Context(), uid, name, description, price, status, categoryID, user.ID)
+	_, err = h.items.Update(r.Context(), uid, name, description, price, status, categoryID, user.ID)
 	if err != nil {
-		http.Error(w, "Failed to update product", http.StatusInternalServerError)
+		http.Error(w, "Failed to update item", http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, "/products", http.StatusSeeOther)
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }
 
-func (h *ProductsHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	uid, err := uuid.Parse(chi.URLParam(r, "uuid"))
 	if err != nil {
 		http.Error(w, "Invalid UUID", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.products.Delete(r.Context(), uid); err != nil {
-		http.Error(w, "Failed to delete product", http.StatusInternalServerError)
+	if err := h.items.Delete(r.Context(), uid); err != nil {
+		http.Error(w, "Failed to delete item", http.StatusInternalServerError)
 		return
 	}
 
@@ -201,5 +201,5 @@ func (h *ProductsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/products", http.StatusSeeOther)
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }

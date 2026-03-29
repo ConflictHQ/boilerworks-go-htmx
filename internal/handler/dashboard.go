@@ -10,14 +10,14 @@ import (
 )
 
 type DashboardHandler struct {
-	products   *queries.ProductQueries
+	items   *queries.ItemQueries
 	categories *queries.CategoryQueries
 	forms      *queries.FormQueries
 	workflows  *queries.WorkflowQueries
 }
 
-func NewDashboardHandler(p *queries.ProductQueries, c *queries.CategoryQueries, f *queries.FormQueries, w *queries.WorkflowQueries) *DashboardHandler {
-	return &DashboardHandler{products: p, categories: c, forms: f, workflows: w}
+func NewDashboardHandler(p *queries.ItemQueries, c *queries.CategoryQueries, f *queries.FormQueries, w *queries.WorkflowQueries) *DashboardHandler {
+	return &DashboardHandler{items: p, categories: c, forms: f, workflows: w}
 }
 
 func (h *DashboardHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
@@ -25,22 +25,22 @@ func (h *DashboardHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	perms := middleware.GetPermissions(r.Context())
 	csrf := middleware.GetCSRFToken(r)
 
-	_, totalProducts, _ := h.products.List(r.Context(), 1, 0)
+	_, totalItems, _ := h.items.List(r.Context(), 1, 0)
 	_, totalCategories, _ := h.categories.List(r.Context(), 1, 0)
 	totalForms, _ := h.forms.CountDefinitions(r.Context())
 	totalSubmissions, _ := h.forms.CountSubmissions(r.Context())
 	totalWorkflows, _ := h.workflows.CountDefinitions(r.Context())
 	totalInstances, _ := h.workflows.CountInstances(r.Context())
-	productsByStatus, _ := h.products.CountByStatus(r.Context())
+	itemsByStatus, _ := h.items.CountByStatus(r.Context())
 
 	data := pages.DashboardData{
-		TotalProducts:    totalProducts,
+		TotalItems:    totalItems,
 		TotalCategories:  totalCategories,
 		TotalForms:       totalForms,
 		TotalSubmissions: totalSubmissions,
 		TotalWorkflows:   totalWorkflows,
 		TotalInstances:   totalInstances,
-		ProductsByStatus: productsByStatus,
+		ItemsByStatus: itemsByStatus,
 	}
 
 	layout := templates.LayoutData{

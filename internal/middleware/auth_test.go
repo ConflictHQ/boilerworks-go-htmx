@@ -34,7 +34,7 @@ func TestGetUserFromEmptyContext(t *testing.T) {
 }
 
 func TestGetPermissionsFromContext(t *testing.T) {
-	perms := []string{"products.view", "products.create"}
+	perms := []string{"items.view", "items.create"}
 
 	ctx := context.WithValue(context.Background(), PermissionsContextKey, perms)
 
@@ -45,15 +45,15 @@ func TestGetPermissionsFromContext(t *testing.T) {
 }
 
 func TestHasPermission(t *testing.T) {
-	perms := []string{"products.view", "products.create", "categories.view"}
+	perms := []string{"items.view", "items.create", "categories.view"}
 	ctx := context.WithValue(context.Background(), PermissionsContextKey, perms)
 
-	if !HasPermission(ctx, "products.view") {
-		t.Error("expected HasPermission to return true for products.view")
+	if !HasPermission(ctx, "items.view") {
+		t.Error("expected HasPermission to return true for items.view")
 	}
 
-	if HasPermission(ctx, "products.delete") {
-		t.Error("expected HasPermission to return false for products.delete")
+	if HasPermission(ctx, "items.delete") {
+		t.Error("expected HasPermission to return false for items.delete")
 	}
 }
 

@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// ProductStore defines the data access methods for products.
-type ProductStore interface {
-	List(ctx context.Context, limit, offset int) ([]model.Product, int, error)
-	GetByUUID(ctx context.Context, uid uuid.UUID) (*model.Product, error)
-	Create(ctx context.Context, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Product, error)
-	Update(ctx context.Context, uid uuid.UUID, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Product, error)
+// ItemStore defines the data access methods for items.
+type ItemStore interface {
+	List(ctx context.Context, limit, offset int) ([]model.Item, int, error)
+	GetByUUID(ctx context.Context, uid uuid.UUID) (*model.Item, error)
+	Create(ctx context.Context, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Item, error)
+	Update(ctx context.Context, uid uuid.UUID, name, description string, price float64, status string, categoryID *uuid.UUID, userID uuid.UUID) (*model.Item, error)
 	Delete(ctx context.Context, uid uuid.UUID) error
 }
 
