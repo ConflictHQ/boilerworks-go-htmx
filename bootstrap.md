@@ -28,7 +28,7 @@ Handlers check `HX-Request` header to return full pages or HTML fragments. Templ
 
 ```bash
 cd docker && docker compose up -d --build
-# API at http://localhost:8084
+# API at http://localhost:8000
 # Login: admin@boilerworks.dev / password
 ```
 

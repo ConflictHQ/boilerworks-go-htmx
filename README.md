@@ -9,7 +9,7 @@ cd docker
 docker compose up -d --build
 ```
 
-Open [http://localhost:8084](http://localhost:8084) and sign in:
+Open [http://localhost:8000](http://localhost:8000) and sign in:
 
 - **Email:** `admin@boilerworks.dev`
 - **Password:** `password`

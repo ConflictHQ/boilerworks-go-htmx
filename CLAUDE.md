@@ -25,7 +25,7 @@ make test              # Run tests
 make lint              # Run golangci-lint
 
 # Docker
-make docker-up         # Start stack (port 8084)
+make docker-up         # Start stack (port 8000)
 make docker-down       # Stop stack
 make docker-reset      # Reset with fresh volumes
 
@@ -63,6 +63,6 @@ go test -v -race ./...
 
 ## Ports
 
-- API: 8084
-- PostgreSQL: 5441
-- Redis: 6384
+- API: 8000
+- PostgreSQL: 5432
+- Redis: 6379
