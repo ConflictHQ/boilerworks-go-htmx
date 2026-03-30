@@ -18,12 +18,3 @@ linters:
       excludes:
         - G104
         - G304
-
-issues:
-  exclude-rules:
-    - path: "_templ\.go$"
-      linters:
-        - errcheck
-        - unused
-        - gosimple
-        - staticcheck
