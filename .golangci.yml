@@ -1,3 +1,4 @@
+version: "2"
 run:
   timeout: 5m
   modules-download-mode: readonly
@@ -12,15 +13,14 @@ linters:
     - unused
     - gosec
     - misspell
-
-linters-settings:
-  gosec:
-    excludes:
-      - G104 # unhandled errors in deferred calls
-      - G304 # file path from variable
+  settings:
+    gosec:
+      excludes:
+        - G104 # unhandled errors in deferred calls
+        - G304 # file path from variable
 
 issues:
   exclude-dirs:
     - vendor
   exclude-files:
-    - ".*_templ\\.go$"
+    - ".*_templ\.go$"
