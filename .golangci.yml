@@ -16,11 +16,14 @@ linters:
   settings:
     gosec:
       excludes:
-        - G104 # unhandled errors in deferred calls
-        - G304 # file path from variable
+        - G104
+        - G304
 
 issues:
-  exclude-dirs:
-    - vendor
-  exclude-files:
-    - ".*_templ\.go$"
+  exclude-rules:
+    - path: "_templ\.go$"
+      linters:
+        - errcheck
+        - unused
+        - gosimple
+        - staticcheck
