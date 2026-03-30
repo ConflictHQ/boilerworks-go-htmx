@@ -20,15 +20,15 @@ func NewAuthHandler(authSvc *service.AuthService) *AuthHandler {
 func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	csrf := middleware.GetCSRFToken(r)
 	layout := templates.LayoutData{Title: "Login", CSRFToken: csrf}
-	templates.Layout(layout).Render(r.Context(), w)
-	pages.LoginPage(csrf, "").Render(r.Context(), w)
+	_ = templates.Layout(layout).Render(r.Context(), w)
+	_ = pages.LoginPage(csrf, "").Render(r.Context(), w)
 }
 
 func (h *AuthHandler) LoginPageFull(w http.ResponseWriter, r *http.Request) {
 	csrf := middleware.GetCSRFToken(r)
 	component := pages.LoginPage(csrf, "")
 	layout := templates.LayoutData{Title: "Login", CSRFToken: csrf}
-	templates.Layout(layout).Render(r.Context(), w)
+	_ = templates.Layout(layout).Render(r.Context(), w)
 	_ = component
 }
 
@@ -38,6 +38,7 @@ func (h *AuthHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
@@ -71,6 +72,7 @@ func (h *AuthHandler) ShowRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return

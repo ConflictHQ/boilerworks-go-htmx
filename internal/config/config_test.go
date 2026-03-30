@@ -7,9 +7,9 @@ import (
 
 func TestLoadDefaults(t *testing.T) {
 	// Unset env vars to test defaults
-	os.Unsetenv("PORT")
-	os.Unsetenv("DATABASE_URL")
-	os.Unsetenv("ENVIRONMENT")
+	_ = os.Unsetenv("PORT")
+	_ = os.Unsetenv("DATABASE_URL")
+	_ = os.Unsetenv("ENVIRONMENT")
 
 	cfg, err := Load()
 	if err != nil {
@@ -26,10 +26,8 @@ func TestLoadDefaults(t *testing.T) {
 }
 
 func TestLoadFromEnv(t *testing.T) {
-	os.Setenv("PORT", "9090")
-	os.Setenv("ENVIRONMENT", "production")
-	defer os.Unsetenv("PORT")
-	defer os.Unsetenv("ENVIRONMENT")
+	t.Setenv("PORT", "9090")
+	t.Setenv("ENVIRONMENT", "production")
 
 	cfg, err := Load()
 	if err != nil {
@@ -46,8 +44,7 @@ func TestLoadFromEnv(t *testing.T) {
 }
 
 func TestLoadInvalidPort(t *testing.T) {
-	os.Setenv("PORT", "not-a-number")
-	defer os.Unsetenv("PORT")
+	t.Setenv("PORT", "not-a-number")
 
 	_, err := Load()
 	if err == nil {

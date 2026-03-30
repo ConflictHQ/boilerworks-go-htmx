@@ -12,10 +12,10 @@ func renderPage(w http.ResponseWriter, r *http.Request, layout templates.LayoutD
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	if r.Header.Get("HX-Request") == "true" {
-		content.Render(r.Context(), w)
+		_ = content.Render(r.Context(), w)
 		return
 	}
 
 	wrapped := templates.LayoutWithContent(layout, content)
-	wrapped.Render(r.Context(), w)
+	_ = wrapped.Render(r.Context(), w)
 }
