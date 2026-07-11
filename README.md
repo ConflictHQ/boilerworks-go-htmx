@@ -18,7 +18,7 @@ Open [http://localhost:8000](http://localhost:8000) and sign in:
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Go 1.22+ with Chi router |
+| Backend | Go 1.25+ with Chi router |
 | Templates | Templ (type-safe Go HTML) |
 | Frontend | HTMX 2.0 + Tailwind CSS |
 | Database | PostgreSQL 16 (pgx/v5) |

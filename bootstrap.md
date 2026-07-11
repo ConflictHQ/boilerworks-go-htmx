@@ -2,7 +2,7 @@
 
 ## Stack
 
-- **Go 1.22+** with Chi router
+- **Go 1.25+** with Chi router
 - **Templ** for type-safe HTML templates (compile with `~/go/bin/templ generate`)
 - **HTMX 2.0** for HTML-over-the-wire dynamic behavior
 - **Tailwind CSS** via CDN (no build step)
@@ -40,4 +40,4 @@ go build ./cmd/web        # build
 go test -v -race ./...    # test
 ```
 
-See the [Boilerworks Catalogue](../primers/CATALOGUE.md) for philosophy and universal patterns.
+See the [Boilerworks Catalogue](https://github.com/ConflictHQ/boilerworks/blob/main/primers/CATALOGUE.md) for philosophy and universal patterns.

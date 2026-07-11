@@ -6,7 +6,7 @@ Read it before writing any code.
 
 ## Stack
 
-- **Backend**: Go 1.22+ with Chi router
+- **Backend**: Go 1.25+ with Chi router
 - **Frontend**: HTMX 2.0 + Templ (type-safe Go HTML templates)
 - **Styling**: Tailwind CSS (CDN)
 - **Database**: PostgreSQL 16 with pgx/v5
